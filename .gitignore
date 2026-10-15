@@ -16,6 +16,7 @@
 # next.js
 /.next/
 /out/
+/.temp_server_routes/
 
 # production
 /build

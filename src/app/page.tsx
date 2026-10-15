@@ -17,6 +17,7 @@ import { MapContainer } from '@/components/map/MapContainer';
 import { ViewToggle } from '@/components/map/ViewToggle';
 import { LocationSelectorModal } from '@/components/location/LocationSelectorModal';
 import { Navigation, AlertCircle, MapPin, Train } from 'lucide-react';
+import { apiUrl } from '@/utils/api';
 
 function mapKakaoCategory(categoryName: string = ''): Exclude<Category, '전체'> {
   if (categoryName.includes('한식') || categoryName.includes('국밥') || categoryName.includes('찌개') || categoryName.includes('고기') || categoryName.includes('구이') || categoryName.includes('백반')) return '한식';
@@ -136,7 +137,7 @@ export default function Home() {
       try {
         const queryRadius = radiusFilter > 0 ? radiusFilter : 3000;
         const res = await fetch(
-          `/api/restaurants?lat=${activeCoords.latitude}&lng=${activeCoords.longitude}&radius=${queryRadius}`
+          apiUrl(`/api/restaurants?lat=${activeCoords.latitude}&lng=${activeCoords.longitude}&radius=${queryRadius}`)
         );
         if (res.ok) {
           const json = await res.json();

@@ -12,10 +12,13 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
 };
 
 const KAKAO_KEY =
   process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY || "e30478df18a03cf2bafd4226d420d4ad";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 export default function RootLayout({
   children,
@@ -26,7 +29,7 @@ export default function RootLayout({
     <html lang="ko" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <Script
-          src={`/api/kakao-sdk?appkey=${KAKAO_KEY}&autoload=false&libraries=services`}
+          src={`${API_BASE}/api/kakao-sdk?appkey=${KAKAO_KEY}&autoload=false&libraries=services`}
           strategy="beforeInteractive"
         />
         {children}

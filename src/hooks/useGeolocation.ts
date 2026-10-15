@@ -3,6 +3,8 @@
 import { useState, useCallback } from 'react';
 import { Coordinates, Region } from '@/types/restaurant';
 import { DEFAULT_REGION } from '@/data/sampleRestaurants';
+import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 
 export type GeolocationErrorCode = 'PERMISSION_DENIED' | 'POSITION_UNAVAILABLE' | 'TIMEOUT' | 'NOT_SUPPORTED';
 
@@ -36,7 +38,58 @@ export function useGeolocation(onLocationFailure?: (msg: string) => void) {
       errorCode: null,
     }));
 
-    // 1. 브라우저 지원 여부 확인
+    // 1. Capacitor 네이티브 앱(iOS/Android) 환경 대응
+    if (Capacitor.isNativePlatform()) {
+      Geolocation.requestPermissions()
+        .then((permission) => {
+          if (permission.location !== 'granted') {
+            const errorMsg = '위치 권한이 거부되었습니다. 기기 설정에서 위치 권한을 허용해 주세요.';
+            setState((prev) => ({
+              ...prev,
+              isLoading: false,
+              permissionDenied: true,
+              errorCode: 'PERMISSION_DENIED',
+              error: errorMsg,
+            }));
+            onLocationFailure?.(errorMsg);
+            return;
+          }
+
+          return Geolocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 5000,
+          }).then((pos) => {
+            setState({
+              coords: {
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+              },
+              locationName: '내 현재 위치 (GPS)',
+              mode: 'browser',
+              isLoading: false,
+              permissionDenied: false,
+              errorCode: null,
+              error: null,
+            });
+          });
+        })
+        .catch((err) => {
+          console.warn('Capacitor Geolocation error:', err);
+          const errorMsg = '현재 위치 신호를 확인할 수 없습니다. GPS가 켜져 있는지 확인해 주세요.';
+          setState((prev) => ({
+            ...prev,
+            isLoading: false,
+            permissionDenied: false,
+            errorCode: 'POSITION_UNAVAILABLE',
+            error: errorMsg,
+          }));
+          onLocationFailure?.(errorMsg);
+        });
+      return;
+    }
+
+    // 2. 브라우저 지원 여부 확인
     if (typeof window === 'undefined' || !navigator.geolocation) {
       const errorMsg = '사용 중인 브라우저에서 위치 서비스를 지원하지 않습니다. 지역을 직접 선택해 주세요.';
       setState((prev) => ({
