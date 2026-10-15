@@ -1,13 +1,22 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  'https://hqialgpwgupbzekkqiko.supabase.co';
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  'sb_publishable_6i7kQm4f0NpB52xd6X-D7g_peDzlpYc';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase URL 또는 Anon Key가 설정되지 않았습니다.');
-}
+export const isSupabaseConfigured = Boolean(
+  supabaseUrl &&
+    supabaseAnonKey &&
+    supabaseUrl.startsWith('http')
+);
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// 빌드 환경(Vercel 등)에서 환경변수가 비어있어도 빌드가 실패하지 않도록 안전하게 생성
+export const supabase: SupabaseClient | null = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 export interface DbRestaurant {
   id: string;

@@ -69,41 +69,43 @@ export async function GET(request: Request) {
   }
 
   // 2순위: Supabase 데이터베이스 조회
-  try {
-    const { data: dbData, error: dbError } = await supabase
-      .from('restaurants')
-      .select('*')
-      .limit(100);
+  if (supabase) {
+    try {
+      const { data: dbData, error: dbError } = await supabase
+        .from('restaurants')
+        .select('*')
+        .limit(100);
 
-    if (!dbError && dbData && dbData.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const dbRestaurants: Restaurant[] = dbData.map((item: any) => ({
-        id: item.id || item.source_id,
-        name: item.name,
-        category: item.category as Exclude<Category, '전체'>,
-        subCategory: item.sub_category || '음식점',
-        roadAddress: item.road_address || '',
-        address: item.address || '',
-        phone: item.phone || '',
-        coords: {
-          latitude: parseFloat(item.latitude),
-          longitude: parseFloat(item.longitude),
-        },
-        mainMenu: Array.isArray(item.main_menu) ? item.main_menu : ['대표 메뉴'],
-        isSample: false,
-        ratingNotice: 'Supabase 연동 실데이터',
-        reviewNotice: '로컬 등록 데이터',
-        businessHoursNotice: '영업 중',
-      }));
+      if (!dbError && dbData && dbData.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dbRestaurants: Restaurant[] = dbData.map((item: any) => ({
+          id: item.id || item.source_id,
+          name: item.name,
+          category: item.category as Exclude<Category, '전체'>,
+          subCategory: item.sub_category || '음식점',
+          roadAddress: item.road_address || '',
+          address: item.address || '',
+          phone: item.phone || '',
+          coords: {
+            latitude: parseFloat(item.latitude),
+            longitude: parseFloat(item.longitude),
+          },
+          mainMenu: Array.isArray(item.main_menu) ? item.main_menu : ['대표 메뉴'],
+          isSample: false,
+          ratingNotice: 'Supabase 연동 실데이터',
+          reviewNotice: '로컬 등록 데이터',
+          businessHoursNotice: '영업 중',
+        }));
 
-      return NextResponse.json({
-        source: 'supabase',
-        total: dbRestaurants.length,
-        restaurants: dbRestaurants,
-      });
+        return NextResponse.json({
+          source: 'supabase',
+          total: dbRestaurants.length,
+          restaurants: dbRestaurants,
+        });
+      }
+    } catch (err) {
+      console.warn('Supabase 조회 실패:', err);
     }
-  } catch (err) {
-    console.warn('Supabase 조회 실패:', err);
   }
 
   // 3순위: 공공데이터 규격 기반 검증된 실제 음식점 실데이터(REAL_RESTAURANTS) 반환
