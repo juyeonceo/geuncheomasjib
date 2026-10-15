@@ -15,6 +15,8 @@ interface RestaurantListProps {
   onSelectRestaurant: (restaurant: Restaurant) => void;
   onViewOnMap?: (restaurant: Restaurant) => void;
   onResetFilters?: () => void;
+  isFavorite?: (id: string) => boolean;
+  onToggleFavorite?: (restaurant: Restaurant) => void;
 }
 
 export function RestaurantList({
@@ -25,6 +27,8 @@ export function RestaurantList({
   onSelectRestaurant,
   onViewOnMap,
   onResetFilters,
+  isFavorite,
+  onToggleFavorite,
 }: RestaurantListProps) {
   return (
     <div className="space-y-3">
@@ -57,6 +61,8 @@ export function RestaurantList({
               isSelected={restaurant.id === selectedRestaurantId}
               onClick={() => onSelectRestaurant(restaurant)}
               onViewOnMap={onViewOnMap}
+              isFavorite={isFavorite ? isFavorite(restaurant.id) : false}
+              onToggleFavorite={onToggleFavorite}
             />
           ))}
         </div>

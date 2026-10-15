@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Navigation, Tag } from 'lucide-react';
+import { MapPin, Navigation, Tag, Heart } from 'lucide-react';
 import { Restaurant } from '@/types/restaurant';
 import { formatDistance } from '@/utils/distance';
 
@@ -10,6 +10,8 @@ interface RestaurantCardProps {
   onClick: () => void;
   onViewOnMap?: (restaurant: Restaurant) => void;
   isSelected?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: (restaurant: Restaurant) => void;
 }
 
 export function RestaurantCard({
@@ -17,6 +19,8 @@ export function RestaurantCard({
   onClick,
   onViewOnMap,
   isSelected = false,
+  isFavorite = false,
+  onToggleFavorite,
 }: RestaurantCardProps) {
   return (
     <div
@@ -25,8 +29,28 @@ export function RestaurantCard({
         isSelected ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-200'
       }`}
     >
+      {/* 즐겨찾기 버튼 (우상단) */}
+      {onToggleFavorite && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite(restaurant);
+          }}
+          className={`absolute top-3.5 right-3.5 p-1.5 rounded-full transition-colors z-10 ${
+            isFavorite
+              ? 'text-red-500 bg-red-50 hover:bg-red-100'
+              : 'text-gray-300 hover:text-red-400 hover:bg-gray-50'
+          }`}
+          aria-label={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+          title={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+        >
+          <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+        </button>
+      )}
+
       {/* 상단: 카테고리 & 거리 */}
-      <div className="flex items-center justify-between gap-2 mb-1.5">
+      <div className="flex items-center justify-between gap-2 mb-1.5 pr-8">
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 font-semibold text-xs border border-orange-100">
             {restaurant.category}
@@ -47,7 +71,7 @@ export function RestaurantCard({
       </div>
 
       {/* 음식점 명 */}
-      <h3 className="text-base font-bold text-gray-900 group-hover:text-orange-600 transition-colors flex items-center gap-1.5">
+      <h3 className="text-base font-bold text-gray-900 group-hover:text-orange-600 transition-colors flex items-center gap-1.5 pr-8">
         {restaurant.name}
       </h3>
 
@@ -93,7 +117,7 @@ export function RestaurantCard({
               e.stopPropagation();
               onViewOnMap(restaurant);
             }}
-            className="text-xs text-orange-600 hover:text-orange-700 font-medium shrink-0 self-end sm:self-auto"
+            className="text-xs text-orange-600 hover:text-orange-700 font-medium shrink-0 self-end sm:self-auto cursor-pointer"
           >
             지도 위치 보기 →
           </button>
