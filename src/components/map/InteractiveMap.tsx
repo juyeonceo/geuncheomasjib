@@ -56,6 +56,23 @@ export function InteractiveMap({
   const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.3, 0.6));
   const handleReset = () => setZoom(1.2);
 
+  const [currentOrigin, setCurrentOrigin] = useState<string>('');
+  const [copied, setCopied] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentOrigin(window.location.origin);
+    }
+  }, []);
+
+  const handleCopyOrigin = () => {
+    if (currentOrigin && navigator.clipboard) {
+      navigator.clipboard.writeText(currentOrigin);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="relative w-full h-full min-h-[420px] bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 flex flex-col shadow-inner select-none">
       {/* 상단 안내 헤더 */}
@@ -70,6 +87,41 @@ export function InteractiveMap({
           <span>기준: {centerName}</span>
         </div>
       </div>
+
+      {/* 배포 환경 카카오 지도 도메인 등록 안내 배너 */}
+      {currentOrigin && !currentOrigin.includes('localhost') && (
+        <div className="absolute top-16 left-3 right-16 z-20 bg-amber-950/95 backdrop-blur-md border border-amber-500/80 p-3 rounded-xl text-amber-200 text-xs shadow-xl animate-fade-in">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <p className="font-bold text-amber-300 flex items-center gap-1 text-xs">
+                <span>⚠️ 카카오 지도 정식 활성화 안내</span>
+              </p>
+              <p className="text-[11px] text-amber-100 leading-relaxed">
+                현재 배포 주소(<span className="font-mono text-white underline font-semibold">{currentOrigin}</span>)가 카카오 개발자 콘솔에 아직 등록되지 않아 임시 레이더 지도가 표시 중입니다.
+              </p>
+              <p className="text-[11px] text-amber-200/90">
+                👉{' '}
+                <a
+                  href="https://developers.kakao.com/console/app"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-white underline font-bold hover:text-amber-300"
+                >
+                  카카오 디벨로퍼스
+                </a>{' '}
+                [앱 설정 &gt; 플랫폼 &gt; Web &gt; 사이트 도메인]에 위 주소를 추가하시면 실제 카카오 지도가 바로 열립니다!
+              </p>
+            </div>
+            <button
+              onClick={handleCopyOrigin}
+              type="button"
+              className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg text-xs shrink-0 shadow transition-colors cursor-pointer"
+            >
+              {copied ? '복사됨!' : '주소 복사'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 맵 컨트롤러 (줌 인/아웃/리셋) */}
       <div className="absolute top-16 right-3 z-10 flex flex-col gap-1.5 bg-slate-800/90 backdrop-blur-md p-1 rounded-xl border border-slate-700 shadow-lg">

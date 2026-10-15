@@ -79,8 +79,8 @@ export function KakaoMapView({
         attempts++;
         if (initMap()) {
           if (checkTimer) clearInterval(checkTimer);
-        } else if (attempts >= 30) {
-          // 3초 이상 SDK 로드 실패 시에만 폴백 모드 전환
+        } else if (attempts >= 60) {
+          // 6초 이상 SDK 로드 실패 시에만 폴백 모드 전환
           if (checkTimer) clearInterval(checkTimer);
           setLoadFailed(true);
         }
