@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="ko" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <Script
-          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&autoload=false&libraries=services`}
+          src={`/api/kakao-sdk?appkey=${KAKAO_KEY}&autoload=false&libraries=services`}
           strategy="beforeInteractive"
         />
         {children}
